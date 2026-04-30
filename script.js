@@ -1,31 +1,66 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Chart.js
     const ctx = document.getElementById('myChart').getContext('2d');
     
-    // إعداد الرسم البياني
     const gpaData = {
-        labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+        labels: [], // Initial empty labels
         datasets: [{
-            label: 'تطور المعدل',
-            data: [3.2, 3.5, 3.1, 3.8], 
+            label: 'GPA Progress',
+            data: [], // Initial empty data
             borderColor: '#3498db',
             backgroundColor: 'rgba(52, 152, 219, 0.1)',
             borderWidth: 3,
             tension: 0.4,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#3498db',
+            pointRadius: 5,
             fill: true
         }]
     };
 
-    new Chart(ctx, {
+    const myChart = new Chart(ctx, {
         type: 'line',
         data: gpaData,
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { min: 0, max: 4.0 } }
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 0,
+                    max: 4.0
+                }
+            }
         }
     });
 
-    // وظيفة حفظ الدرجات وإرسالها للسيرفر
+    // Step 6: AJAX function to fetch student history
+    window.loadStudentHistory = function(studentId) {
+        fetch(`get_history.php?id=${studentId}`)
+            .then(response => response.json())
+            .then(data => {
+                myChart.data.labels = data.map(item => item.semester_label);
+                myChart.data.datasets[0].data = data.map(item => item.gpa);
+                myChart.update();
+            })
+            .catch(error => console.error('History Fetch Error:', error));
+    };
+
+    // Step 9: Filter function for student search
+    window.filterStudents = function() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let rows = document.querySelectorAll('#studentList tr');
+        
+        rows.forEach(row => {
+            let name = row.cells[0].textContent.toLowerCase();
+            row.style.display = name.includes(input) ? '' : 'none';
+        });
+    };
+
+    // Save grades function
     window.saveGrades = function() {
         const inputs = document.querySelectorAll('.grade-input');
         let gradesData = [];
@@ -37,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // إرسال البيانات إلى ملف التوجيه (Controller)
         fetch('process_grades.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -46,12 +80,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert("تم تحديث المعدلات في قاعدة البيانات بنجاح!");
+                alert("Grades updated successfully");
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("حدث خطأ أثناء الاتصال بالسيرفر.");
-        });
+        .catch(error => console.error('Save Error:', error));
     };
 });
+

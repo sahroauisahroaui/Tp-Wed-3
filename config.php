@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbname = "Tp_Web_3"; // الاسم الذي اخترتِيه في phpMyAdmin
+$dbname = "my_gpa_system"; // الاسم الذي اخترتِيه في phpMyAdmin
 
 $conn = new mysqli($host, $user, $password, $dbname);
 

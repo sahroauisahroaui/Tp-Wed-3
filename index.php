@@ -4,7 +4,30 @@
     <meta charset="UTF-8">
     <title>نظام إدارة المعدل الأكاديمي</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"> 
+        // كود إرسال البيانات بدون تحديث الصفحة
+document.getElementById('gradeForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // منع الصفحة من التحديث
+    
+    let formData = new FormData(this);
+    
+    fetch('add_grade.php', { // تأكدي أن هذا الملف موجود ويحتوي على كود الحفظ
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('responseMessage').innerHTML = 
+            `<div class="alert alert-success">تم حفظ البيانات بنجاح!</div>`;
+        this.reset(); // تفريغ الخانات بعد الحفظ
+    })
+    .catch(error => {
+        document.getElementById('responseMessage').innerHTML = 
+            `<div class="alert alert-danger">حدث خطأ أثناء الحفظ.</div>`;
+    });
+});
+        
+    </script>
     <style>
         /* التنسيق الذي أرسلتِه سابقاً ليعطي شكل البطاقات الاحترافية */
         body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
